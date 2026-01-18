@@ -81,10 +81,7 @@ $bulanIndonesia = [
                     <?php if (!empty($reportData)): foreach ($reportData as $nis => $data): ?>
                             <tr class="text-gray-700">
                                 <td class="px-4 py-3 text-sm font-semibold sticky left-0 bg-white z-10">
-                                    <?php
-                                    $detail_data = $detailedAttendance[$data['student_id']] ?? ['records' => [], 'summary' => ['hadir' => 0, 'sakit' => 0, 'izin' => 0, 'alpa' => 0]];
-                                    // Pastikan controller sudah mengirim 'alpa' di summary, kalau belum tambah di controller
-                                    ?>
+                                    <?php $detail_data = $detailedAttendance[$data['student_id']] ?? ['records' => [], 'summary' => ['hadir' => 0, 'sakit' => 0, 'izin' => 0]]; ?>
                                     <button type="button"
                                         @click="open('<?= esc($data['full_name']) ?>', <?= $data['student_id'] ?>, '<?= htmlspecialchars(json_encode($detail_data), ENT_QUOTES) ?>', '<?= esc($active_year['year'] ?? 'Tahun Ajaran Aktif') ?>')"
                                         class="text-left hover:underline text-sky-600">
@@ -93,7 +90,10 @@ $bulanIndonesia = [
                                 </td>
                                 <?php foreach ($dateHeaders as $date): ?>
                                     <?php $status = $data['attendances'][$date] ?? null;
-                                    $badge_color = ($status == 'Hadir') ? 'bg-green-100 text-green-700' : (($status == 'Sakit') ? 'bg-yellow-100 text-yellow-700' : (($status == 'Izin') ? 'bg-blue-100 text-blue-700' : (($status == 'Alpa') ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-400')));
+                                    $badge_color = ($status == 'Hadir') ? 'bg-green-100 text-green-700' : 
+                                                  (($status == 'Sakit') ? 'bg-yellow-100 text-yellow-700' : 
+                                                  (($status == 'Izin') ? 'bg-blue-100 text-blue-700' : 
+                                                  (($status == 'Alpa') ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-400'))); 
                                     $status_label = ($status) ? substr($status, 0, 1) : '-';
                                     ?>
                                     <td class="px-2 py-3 text-center"><span
@@ -101,8 +101,7 @@ $bulanIndonesia = [
                                     </td>
                                 <?php endforeach; ?>
                             </tr>
-                        <?php endforeach;
-                    elseif ($selected_class_id): ?>
+                        <?php endforeach; elseif ($selected_class_id): ?>
                         <tr>
                             <td colspan="<?= count($dateHeaders) + 1 ?>" class="text-center py-8 text-gray-500">Tidak ada
                                 data kehadiran untuk ditampilkan.</td>
@@ -133,7 +132,7 @@ $bulanIndonesia = [
                     <button @click="close()" class="p-2 -mr-2 rounded-full hover:bg-gray-100">&times;</button>
                 </div>
             </div>
-            <div class="grid grid-cols-4 gap-4 my-4 text-center">
+            <div class="grid grid-cols-3 gap-4 my-4 text-center">
                 <div class="p-2 bg-green-50 rounded-lg">
                     <p class="text-2xl font-bold text-green-600" x-text="summary.hadir"></p>
                     <p class="text-xs text-gray-500">Hadir</p>
@@ -145,10 +144,6 @@ $bulanIndonesia = [
                 <div class="p-2 bg-blue-50 rounded-lg">
                     <p class="text-2xl font-bold text-blue-600" x-text="summary.izin"></p>
                     <p class="text-xs text-gray-500">Izin</p>
-                </div>
-                <div class="p-2 bg-pink-50 rounded-lg">
-                    <p class="text-2xl font-bold text-pink-600" x-text="summary.alpa"></p>
-                    <p class="text-xs text-gray-500">Alpa</p>
                 </div>
             </div>
             <div class="mt-4 max-h-64 overflow-y-auto">
@@ -168,7 +163,7 @@ $bulanIndonesia = [
                                 <td class="px-4 py-2">
                                     <span
                                         :class="statusClass(att.status)"
-                                        x-text="att.status ? att.status.charAt(0).toUpperCase() : '-'">
+                                        x-text="att.status === 'Alpa' ? '-' : att.status.charAt(0)">
                                     </span>
                                 </td>
                                 <td class="px-4 py-2" x-text="att.check_in_time || '-'"></td>
@@ -198,12 +193,7 @@ $bulanIndonesia = [
             studentId: null,
             activeYearName: '',
             attendanceData: [],
-            summary: {
-                hadir: 0,
-                sakit: 0,
-                izin: 0,
-                alpa: 0
-            },
+            summary: { hadir: 0, sakit: 0, izin: 0 },
             open(studentName, studentId, detailJson, activeYearName) {
                 this.studentName = studentName;
                 this.studentId = studentId;
@@ -216,11 +206,7 @@ $bulanIndonesia = [
 
                 this.attendanceData = detailData.records.map(item => ({
                     ...item,
-                    formatted_date: new Date(item.attendance_date).toLocaleDateString('id-ID', {
-                        weekday: 'long',
-                        day: 'numeric',
-                        month: 'long'
-                    }),
+                    formatted_date: new Date(item.attendance_date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' }),
                     check_in_time: item.check_in_time ? item.check_in_time.substring(0, 5) : null,
                     check_out_time: item.check_out_time ? item.check_out_time.substring(0, 5) : null
                 }));
@@ -239,9 +225,6 @@ $bulanIndonesia = [
                 }
                 if (status === 'Izin') {
                     return base + 'bg-blue-100 text-blue-700';
-                }
-                if (status === 'Alpa') {
-                    return base + 'bg-red-100 text-red-700';
                 }
                 return base + 'bg-gray-100 text-gray-700';
             }

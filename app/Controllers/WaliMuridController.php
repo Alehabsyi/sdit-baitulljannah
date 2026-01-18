@@ -10,6 +10,12 @@ use App\Models\EnrollmentModel;
 
 class WaliMuridController extends BaseController
 {
+    public function __construct()
+    {
+        // Set zona waktu dan mulai buffer
+        date_default_timezone_set('Asia/Jakarta');
+        ob_start();
+    }
     public function dashboard()
     {
         $siswaModel = new SiswaModel();

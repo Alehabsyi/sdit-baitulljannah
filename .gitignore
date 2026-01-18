@@ -1,5 +1,4 @@
-
+.env
 /vendor/
 /writable/
-*.log
-*.zip
+app/app.zip
